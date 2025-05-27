@@ -32,6 +32,46 @@ void setup() {
 }
 
 void loop() {
+  if(!rfid.PICC_IsNewCardPresent())
+    return;
+  if(!rfid.PICC_ReadCardSerial())
+    return;
   
+
+  Serial.println("Lendo Cartao");
+
+  String ID = "";
+
+  for(byte i = 0; i < rfid.uid.size; i++){
+    ID.concat(String(rfid.uid.uidByte[i] < 0x10 ? " 0" : " "));
+    ID.concat(String(rfid.uid.uidByte[i], HEX));
+    delay(300);
+  }
+  ID.toUpperCase();
+  lcd.print(ID);
+
+  if(ID.substring(1) == UID && lock == 0 ){
+    Serial.println("Porta Aberta");
+    lcd.clear();
+    lcd.print("Porta Aberta");
+    //digitalWrite(pinoRele, HIGH);
+    servo.slowmove(80,50);
+    //servo.write(80);
+    lock = 1;
+
+  }else if(ID.substring(1) == UID && lock ==1){
+    Serial.print("Porta fechada");
+    lcd.clear();
+    lcd.print("Porta fechada");
+    //digitalWrite(pinoRele, LOW);
+    servo.slowmove(10,50);
+    //servo.write(10);
+    delay(3000);
+
+    lock =0;
+  }else{
+    delay(2000);
+  }
+
 
 }
